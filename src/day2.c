@@ -41,7 +41,19 @@ char* get_next_number(char *input, int *result) {
   return input;
 }
 
-bool is_line_safe(char *input) {
+bool parse_line_safety(int levels[], size_t count) {
+  int d1 = levels[0] - levels[1];
+  int s1 = sign(d1);
+
+  for (size_t i = 1; i < count; i++) {
+    int r = levels[i-1] - levels[i];
+    int ds = sign(r);
+    if (ds != s1 || abs(r) < 1 || abs(r) > 3) return false;
+  }
+  return true;
+}
+
+bool is_line_safe(char *input, bool tolerance) {
   size_t numbers = count_numbers(input);
   int levels[numbers];
   for (size_t i = 0; i < numbers; i++) { 
@@ -49,41 +61,46 @@ bool is_line_safe(char *input) {
     input = get_next_number(input, &result);
     levels[i] = result;
   }
-  int d1 = levels[0] - levels[1];
-  int s1 = sign(d1);
 
-  for (size_t i = 1; i < numbers; i++) {
-    int r = levels[i-1] - levels[i];
-    int ds = sign(r);
-    if (ds != s1) return false;
-    if (abs(r) < 1 || abs(r) > 3) return false;
+  bool is_line_safe = parse_line_safety(levels, numbers);
+  if (!tolerance) return is_line_safe;
+  if (is_line_safe) return is_line_safe;
+
+  for (size_t i = 0; i < numbers; i++) {
+    int temp[numbers-1];
+    size_t j = 0;
+    for (size_t k = 0; k < numbers; k++) {
+      if (k != i) temp[j++] = levels[k];
+    }
+    if (parse_line_safety(temp, numbers-1)) return true;
   }
-  return true;
-}
-
-void solve_example_2() {
-  printf("Example 2: %d\n", 0);
+  return false;
 }
 
 void solve_part_1(char *input) {
   int safe_reports = 0;
   int line = 1;
   while (input) {
-    if (is_line_safe(input)) {
-      printf("%d: Safe\n", line);
-    } else {
-      printf("%d: Unsafe\n", line);
-    }
-    safe_reports += is_line_safe(input) ? 1 : 0;
+    safe_reports += is_line_safe(input, false) ? 1 : 0;
     input = trim_newline(input);
     line++;
   }
   printf("Part 1: %d\n", safe_reports);
-  
+}
+
+void solve_part_2(char *input) {
+  int safe_reports = 0;
+  int line = 1;
+  while (input) {
+    safe_reports += is_line_safe(input, true) ? 1 : 0;
+    input = trim_newline(input);
+    line++;
+  }
+  printf("Part 2: %d\n", safe_reports);
 }
 
 int main(void) {
-  char *input;
+  char *input, *input2;
   long length;
   FILE *file = fopen("src/input2.txt", "rb");
   if (!file) {
@@ -95,18 +112,26 @@ int main(void) {
   length = ftell(file);
   fseek(file, 0, SEEK_SET);
   input = malloc(length);
-  if (!input) {
+  input2 = malloc(length);
+  if (!input || !input2) {
     perror("could not allocate");
     exit(1);
   }
 
   fread(input, 1, length, file);
+  fseek(file, 0, SEEK_SET);
+  fread(input2, 1, length, file);
   fclose(file);
 
   printf("EXAMPLE\n");
   solve_part_1(EXAMPLE);
   printf("REAL\n");
   solve_part_1(input);
+  printf("\n=========\n");
+  printf("EXAMPLE\n");
+  solve_part_2(EXAMPLE);
+  printf("REAL\n");
+  solve_part_2(input2);
   return 0;
 }
 
