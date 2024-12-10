@@ -13,3 +13,7 @@ day3: src/day3.c
 day4: src/day4.c
 	mkdir -p build
 	cc -ggdb -Wall -Wextra -o build/day4 src/day4.c
+
+day5: src/day5.c
+	mkdir -p build
+	cc -ggdb -Wall -Wextra -o build/day5 src/day5.c
