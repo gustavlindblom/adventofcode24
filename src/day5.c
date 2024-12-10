@@ -122,23 +122,23 @@ void parse_input(char *input, PageOrderRules *rules, PrintingOrders *orders) {
 }
 
 void solve_part_1(char *input) {
-  PageOrderRules rules = {0};
-  PrintingOrders orders = {0};
-  parse_input(input, &rules, &orders);
+  PageOrderRules *rules = malloc(sizeof(PageOrderRules));
+  PrintingOrders *orders = malloc(sizeof(PrintingOrders));
+  parse_input(input, rules, orders);
 
   int sum = 0;
   int visited[1024];
-  for (size_t i = 0; i < orders.count; i++) {
-    size_t page_count = orders.items[i].count;
+  for (size_t i = 0; i < orders->count; i++) {
+    size_t page_count = orders->items[i].count;
     for (size_t vi = 0; vi < page_count; vi++) {
       visited[vi] = 0;
     }
     for (size_t j = 0; j < page_count; j++) {
-      int page = orders.items[i].items[j];
-      for (size_t x = 0; x < rules.count; x++) {
-        if (rules.items[x].first == page) {
+      int page = orders->items[i].items[j];
+      for (size_t x = 0; x < rules->count; x++) {
+        if (rules->items[x].first == page) {
           for (size_t y = 0; y < page_count; y++) {
-            if (visited[y] == rules.items[x].second) {
+            if (visited[y] == rules->items[x].second) {
               goto invalid;
             }
           }
@@ -146,11 +146,13 @@ void solve_part_1(char *input) {
       }
       visited[j] = page;
     }
-    int middle = orders.items[i].items[orders.items[i].count / 2];
+    int middle = orders->items[i].items[orders->items[i].count / 2];
     sum += middle;
 invalid:
   }
   printf("Middle sum: %d\n", sum);
+  free(rules);
+  free(orders);
 }
 
 int main(void) {
