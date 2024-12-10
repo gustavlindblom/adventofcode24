@@ -33,17 +33,16 @@ void count_rows_and_columns(char *input, int *rows, int *columns) {
   *columns = c;
 }
 
-int main(void) {
-  char *example = read_file("src/input4.txt");
+void solve_part_1(char *input) {
   int rows, columns;
-  count_rows_and_columns(example, &rows, &columns);
+  count_rows_and_columns(input, &rows, &columns);
   char word_search[rows][columns];
   char word_search_solved[rows][columns];
   
   for (int y = 0; y < rows; y++) {
     for (int x = 0; x < columns; x++) {
       int idx = (y * rows) + x /* skip newline characters */ + (1 * y); 
-      word_search[y][x] = example[idx];
+      word_search[y][x] = input[idx];
       word_search_solved[y][x] = '.';
     }
   }
@@ -84,5 +83,12 @@ int main(void) {
     printf("\n");
   }
   printf("words found: %d\n", words_found);
+}
+
+int main(void) {
+  char *input = read_file("src/input4.txt");
+  printf("=== PART 1 ===\n");
+  solve_part_1(input);
+  printf("\n=== PART 2 ===\n");
   return 0;
 }
